@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Индекс пригодности планет для жизни</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700&family=Unbounded:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#04050d;
+  --ink:#e9edff;
+  --muted:#8f9cc6;
+  --line:rgba(150,172,255,.16);
+  --glass:rgba(11,14,38,.62);
+  --cyan:#66e6ff;
+  --violet:#a78bff;
+  --pink:#ff6ad5;
+  --amber:#ffb454;
+  --good:#5dffb0;
+  --bad:#ff5c7a;
+  --tier:#5dffb0;
+  --font:'Exo 2',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --display:'Unbounded','Exo 2',system-ui,-apple-system,'Segoe UI',sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{background:var(--bg);scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.55;overflow-x:hidden;-webkit-text-size-adjust:100%}
+.nebula{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+   radial-gradient(60vmax 40vmax at 12% 8%,rgba(120,80,255,.20),transparent 60%),
+   radial-gradient(50vmax 40vmax at 92% 30%,rgba(40,170,255,.14),transparent 62%),
+   radial-gradient(60vmax 45vmax at 40% 105%,rgba(255,90,190,.13),transparent 60%),
+   linear-gradient(180deg,#04050d,#070a1c 55%,#04050d)}
+#stars{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+main{position:relative;z-index:1}
+a{color:var(--cyan)}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:8px}
+
+.wrap{max-width:1240px;margin:0 auto;padding:0 18px}
+
+/* hero */
+.hero{padding:clamp(34px,7vw,88px) 0 clamp(22px,4vw,44px)}
+.hero small{display:block;color:var(--muted);font-size:14px;margin-bottom:14px}
+.hero h1{font-family:var(--display);font-weight:800;font-size:clamp(27px,5.4vw,60px);line-height:1.1;letter-spacing:-.02em;margin:0 0 20px;max-width:16em;
+  background:linear-gradient(100deg,#ffffff 0%,#a8ecff 38%,#c7aeff 68%,#ff9be6 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{max-width:40em;color:#c3cbee;font-size:clamp(16px,1.6vw,19px);margin:0 0 26px}
+.cta{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:999px;border:1px solid var(--line);color:var(--ink);text-decoration:none;font:600 15px var(--font);background:rgba(20,26,64,.6);cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);border-color:rgba(160,200,255,.5)}
+.btn.primary{background:linear-gradient(100deg,#3ec6ff,#8a6bff 60%,#ff6ad5);border-color:transparent;color:#06081a;box-shadow:0 8px 30px rgba(120,120,255,.4)}
+
+/* lab */
+.lab{padding:10px 0 40px}
+.sec-head h2{font-family:var(--display);font-weight:600;font-size:clamp(20px,3vw,32px);margin:0 0 6px;letter-spacing:-.01em}
+.sec-head p{margin:0 0 18px;color:var(--muted)}
+.picker{display:grid;gap:4px;margin-bottom:16px}
+.prow{display:flex;align-items:center;gap:12px}
+.plabel{flex:none;width:118px;font-size:13px;color:var(--muted);line-height:1.25}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:thin;scrollbar-color:rgba(150,170,255,.3) transparent;-webkit-overflow-scrolling:touch;min-width:0}
+.chip{flex:none;display:flex;align-items:center;gap:8px;padding:6px 12px 6px 7px;border-radius:999px;border:1px solid var(--line);background:rgba(16,20,50,.6);color:var(--ink);font:500 14px var(--font);cursor:pointer;transition:border-color .2s,box-shadow .2s,transform .2s,background .2s}
+.chip:hover{border-color:rgba(150,200,255,.5);transform:translateY(-1px)}
+.chip[aria-pressed="true"]{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan),0 0 24px rgba(102,230,255,.3);background:rgba(30,50,95,.72)}
+.orb{width:24px;height:24px;border-radius:50%;flex:none;box-shadow:inset -6px -5px 9px rgba(0,0,0,.6),0 0 9px rgba(120,160,255,.25)}
+.chip small{font-size:12px;color:var(--muted)}
+
+.panel{background:var(--glass);border:1px solid var(--line);border-radius:22px;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);padding:20px;box-shadow:0 24px 70px rgba(0,0,20,.5),inset 0 1px 0 rgba(255,255,255,.06)}
+.panel h3{font-family:var(--display);font-weight:600;font-size:16px;margin:0 0 8px}
+.lab-grid{display:grid;gap:18px;grid-template-columns:320px minmax(0,1fr) 350px;grid-template-areas:"params stage result";align-items:start}
+.params{grid-area:params}
+.stage-wrap{grid-area:stage;min-width:0}
+.result{grid-area:result}
+
+/* params */
+.param{padding:10px 0;border-bottom:1px solid rgba(150,170,255,.08)}
+.param label{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:600}
+.punit{color:var(--muted);font-weight:400}
+.param input{width:100%;margin-top:6px;background:rgba(6,8,24,.72);border:1px solid var(--line);border-radius:12px;padding:9px 12px;color:var(--ink);font:600 16px var(--font);outline:none;transition:border-color .2s,box-shadow .2s}
+.param input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(102,230,255,.15)}
+.param.bad input{border-color:var(--bad);box-shadow:0 0 0 3px rgba(255,92,122,.15)}
+.param.bad .pm{color:var(--bad)}
+.bar{height:5px;border-radius:9px;background:rgba(255,255,255,.07);margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:9px;transition:width .6s cubic-bezier(.2,.8,.2,1),background .6s}
+.pmeta{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--muted);margin-top:5px}
+.pmeta .ps{font-weight:600;color:var(--ink)}
+.actions{display:flex;gap:10px;margin-top:16px}
+.actions .btn{flex:1;padding:11px 14px}
+.exps{margin-top:16px;font-size:13px;color:var(--muted)}
+.exps div{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.exps button{font:500 13px var(--font);color:#cfd8ff;background:rgba(80,100,220,.16);border:1px solid rgba(140,160,255,.25);border-radius:999px;padding:6px 12px;cursor:pointer;transition:background .2s}
+.exps button:hover{background:rgba(110,130,255,.3)}
+
+/* stage */
+.stage{position:relative;aspect-ratio:1/1;width:100%;max-width:700px;margin:0 auto;container-type:inline-size;border-radius:28px;border:1px solid var(--line);overflow:hidden;
+  background:radial-gradient(circle at 50% 50%,rgba(70,90,200,.20),rgba(6,8,24,.35) 62%)}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stage canvas.swap{animation:swapIn .9s cubic-bezier(.2,.8,.2,1)}
+@keyframes swapIn{0%{opacity:0;transform:scale(.8);filter:blur(10px)}100%{opacity:1;transform:none;filter:none}}
+.orbit{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%);transition:opacity .8s;pointer-events:none}
+.o1{width:80%;height:80%;border:1px dashed rgba(140,170,255,.2);animation:spin 46s linear infinite}
+.o2{width:96%;height:96%;border:1px solid rgba(140,170,255,.08);animation:spin 80s linear infinite reverse}
+.orbit i{position:absolute;top:-4px;left:50%;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan)}
+.o2 i{background:var(--violet);box-shadow:0 0 12px var(--violet)}
+@keyframes spin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.stage.void .orbit{opacity:0}
+.stage-ui{position:absolute;left:18px;top:16px;right:18px;pointer-events:none;text-shadow:0 2px 12px rgba(0,0,0,.7)}
+.s-name{font-family:var(--display);font-weight:600;font-size:clamp(15px,2.6cqw,22px)}
+.s-sub{font-size:clamp(12px,1.9cqw,14px);color:#b6c2ec}
+.stage-note{position:absolute;right:16px;bottom:12px;font-size:12px;color:rgba(170,185,235,.6);pointer-events:none}
+.bh-text{position:absolute;inset:0;display:grid;place-items:center;text-align:center;pointer-events:none;opacity:0;transition:opacity 1s .35s}
+.stage.void .bh-text{opacity:1}
+.bh-text span{display:block;font-family:var(--font);font-weight:700;font-size:11px;font-size:clamp(9px,3cqw,21px);letter-spacing:.14em;line-height:1.5;color:#fff;transform:translateY(-3%);
+  text-shadow:0 0 12px rgba(255,150,70,.95),0 0 28px rgba(255,90,20,.65),0 0 2px #000}
+.blurb{margin:14px auto 0;max-width:700px;color:#b7c2ea;font-size:15px;text-align:center}
+
+/* result */
+.gauge{position:relative;width:172px;height:172px;margin:2px auto 6px}
+.gauge svg{width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.gauge circle{fill:none;stroke-width:9;stroke-linecap:round}
+.g-bg{stroke:rgba(255,255,255,.08)}
+.g-fg{stroke:var(--tier);filter:drop-shadow(0 0 7px var(--tier));transition:stroke .5s}
+.g-num{position:absolute;inset:0;display:grid;place-content:center;text-align:center}
+.g-num b{font-family:var(--display);font-weight:800;font-size:40px;line-height:1}
+.g-num small{font-size:11.5px;color:var(--muted);margin-top:4px;max-width:100px}
+.result.void .g-fg{opacity:.4}
+.result.void .g-num b{color:#c9b6ff}
+.verdict{font-family:var(--display);font-weight:800;font-size:clamp(18px,2vw,22px);text-align:center;color:var(--tier);transition:color .5s;line-height:1.2}
+.vsub{text-align:center;color:#c3cbee;font-size:14.5px;margin:8px 0 12px}
+.matchbox{font-size:14px;padding:12px 14px;border-radius:14px;background:rgba(90,110,230,.12);border:1px solid rgba(140,160,255,.2);margin-bottom:14px}
+.matchbox b{color:#fff}
+.result.void .matchbox{background:rgba(160,110,255,.12);border-color:rgba(180,140,255,.3)}
+.derived{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;margin:0 0 14px}
+.derived div{min-width:0}
+.derived dt{font-size:12px;color:var(--muted)}
+.derived dd{margin:0;font-weight:600;font-size:15px}
+.warns{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.warns li{font-size:13.5px;color:#d4dbf7;padding:8px 10px 8px 12px;border-left:3px solid var(--amber);background:rgba(255,180,84,.07);border-radius:0 10px 10px 0}
+.warns li.note{border-left-color:var(--violet);background:rgba(167,139,255,.09);color:#c9c1f5}
+
+/* method */
+.method{padding:30px 0 20px}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:22px 0}
+.step{padding:20px}
+.step .n{font-family:var(--display);font-weight:800;font-size:30px;color:var(--cyan);line-height:1;margin-bottom:10px}
+.step h3{font-size:15px;margin:0 0 8px}
+.step p{margin:0;color:#c3cbee;font-size:15px}
+.formula{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:rgba(4,6,20,.75);border:1px solid var(--line);border-radius:16px;padding:16px 18px;overflow-x:auto;color:#bff3ff;font-size:clamp(14px,2vw,18px);margin:16px 0;white-space:nowrap}
+.tbl-wrap{overflow-x:auto;margin:16px 0}
+table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:640px}
+th,td{text-align:left;padding:11px 12px;border-bottom:1px solid rgba(150,170,255,.12);vertical-align:top}
+th{color:var(--muted);font-weight:500;font-size:13px}
+td:first-child{font-weight:600;white-space:nowrap}
+td.w{white-space:nowrap;color:var(--cyan);font-weight:600}
+.scale{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin:14px 0}
+.scale div{padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(10,14,38,.6);font-size:14px}
+.scale b{display:block;margin-bottom:2px}
+.answer{padding:24px;margin-top:20px}
+.answer h3{font-size:18px}
+.answer p,.answer li{color:#c9d1f2;font-size:15.5px}
+.answer ul{padding-left:20px;margin:10px 0 0}
+.answer li{margin:6px 0}
+footer{padding:28px 0 44px;color:var(--muted);font-size:13.5px;border-top:1px solid var(--line);margin-top:36px}
+
+@media (max-width:1140px){
+  .lab-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"stage stage" "result params"}
+}
+@media (max-width:760px){
+  .lab-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"stage" "result" "params"}
+  .prow{flex-direction:column;align-items:stretch;gap:0}
+  .plabel{width:auto}
+  .panel{padding:16px}
+  .wrap{padding:0 14px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+<div class="nebula"></div>
+<canvas id="stars" aria-hidden="true"></canvas>
+
+<main>
+<div class="wrap">
+  <header class="hero">
+    <small>Проект по астробиологии</small>
+    <h1>Можно ли предсказать, что планета пригодна для жизни?</h1>
+    <p>Отчасти да. Учёные сводят десятки характеристик планеты в один индекс пригодности. Выберите реальный мир или задайте свои параметры: сайт рассчитает индекс, вынесет вердикт и проверит, бывают ли такие планеты вообще.</p>
+    <div class="cta">
+      <a class="btn primary" href="#lab">Открыть лабораторию</a>
+      <a class="btn" href="#method">Как считается индекс</a>
+    </div>
+  </header>
+
+  <section id="lab" class="lab" aria-labelledby="lab-title">
+    <div class="sec-head">
+      <h2 id="lab-title">Лаборатория планет</h2>
+      <p>Нажмите на планету в каталоге или измените числа слева. Число рядом с названием — её индекс пригодности.</p>
+    </div>
+
+    <div class="picker">
+      <div class="prow"><div class="plabel">Солнечная система</div><div class="chips" id="chips-sol"></div></div>
+      <div class="prow"><div class="plabel">Экзопланеты</div><div class="chips" id="chips-exo"></div></div>
+    </div>
+
+    <div class="lab-grid">
+      <aside class="panel params" aria-label="Параметры планеты">
+        <h3>Параметры планеты</h3>
+        <div id="params"></div>
+        <div class="actions">
+          <button class="btn primary" id="calc" type="button">Рассчитать</button>
+          <button class="btn" id="reset" type="button">Как у Земли</button>
+        </div>
+        <div class="exps"><span>Проверьте, что исчезнет:</span><div id="exps"></div></div>
+      </aside>
+
+      <section class="stage-wrap" aria-label="Визуализация">
+        <div class="stage" id="stage" role="img" aria-label="Визуализация планеты">
+          <div class="orbit o1"><i></i></div>
+          <div class="orbit o2"><i></i></div>
+          <canvas id="gl"></canvas>
+          <div class="stage-ui"><div class="s-name" id="sname">Земля</div><div class="s-sub" id="ssub">Солнечная система</div></div>
+          <div class="bh-text" aria-hidden="true"><span>Такой планеты<br>«не существует»</span></div>
+          <div class="stage-note">схематичное изображение</div>
+        </div>
+        <p class="blurb" id="blurb"></p>
+      </section>
+
+      <aside class="panel result" id="result" aria-live="polite">
+        <h3>Расчёт и вывод</h3>
+        <div class="gauge">
+          <svg viewBox="0 0 140 140" aria-hidden="true">
+            <circle class="g-bg" cx="70" cy="70" r="60"></circle>
+            <circle class="g-fg" id="gfg" cx="70" cy="70" r="60" pathLength="100" stroke-dasharray="0 100"></circle>
+          </svg>
+          <div class="g-num"><b id="gnum">0</b><small id="glab">индекс пригодности, %</small></div>
+        </div>
+        <div class="verdict" id="verdict"></div>
+        <p class="vsub" id="vsub"></p>
+        <div class="matchbox" id="matchbox"></div>
+        <dl class="derived" id="derived"></dl>
+        <ul class="warns" id="warns"></ul>
+      </aside>
+    </div>
+  </section>
+
+  <section id="method" class="method" aria-labelledby="m-title">
+    <div class="sec-head">
+      <h2 id="m-title">Как считается индекс</h2>
+      <p>Девять параметров, одна формула, четыре вывода.</p>
+    </div>
+
+    <div class="steps">
+      <div class="panel step"><div class="n">1</div><h3>Параметр превращается в оценку от 0 до 1</h3><p>Температура 15 °C получает 1,0, а 464 °C (как на Венере) — 0. Кривые оценок построены по диапазонам, в которых выживает известная нам жизнь.</p></div>
+      <div class="panel step"><div class="n">2</div><h3>Оценки сводятся в индекс</h3><p>Используется взвешенное среднее геометрическое. Важные параметры (температура, вода) весят больше второстепенных (форма орбиты).</p></div>
+      <div class="panel step"><div class="n">3</div><h3>Индекс становится выводом</h3><p>Итог сравнивается со шкалой ниже. Параллельно сайт проверяет, существует ли планета с такими параметрами.</p></div>
+    </div>
+
+    <div class="formula" role="math" aria-label="Формула индекса">ИП = exp( Σ wᵢ · ln(sᵢ) / Σ wᵢ )     sᵢ — оценка параметра (0…1), wᵢ — его вес</div>
+    <p style="color:#c3cbee;max-width:52em">Среднее геометрическое выбрано намеренно: один смертельный параметр не может спрятаться за хорошими остальными. Если вода не может быть жидкой, идеальная гравитация не спасёт: индекс уйдёт к нулю. Это тот же принцип, что и «закон минимума» Либиха в экологии.</p>
+
+    <div class="tbl-wrap panel" style="padding:8px 14px">
+      <table>
+        <thead><tr><th>Параметр</th><th>Вес</th><th>Идеальная зона</th><th>Почему это важно</th></tr></thead>
+        <tbody id="ptable"></tbody>
+      </table>
+    </div>
+
+    <h3 style="font-family:var(--display);font-size:17px;margin:26px 0 4px">Шкала вывода</h3>
+    <div class="scale">
+      <div style="border-color:rgba(93,255,176,.5)"><b style="color:#5dffb0">от 75%</b>Пригодна для жизни</div>
+      <div style="border-color:rgba(212,244,92,.5)"><b style="color:#d4f45c">50–75%</b>Условно пригодна</div>
+      <div style="border-color:rgba(255,169,77,.5)"><b style="color:#ffa94d">25–50%</b>Не пригодна: выживут только экстремофилы</div>
+      <div style="border-color:rgba(255,92,122,.5)"><b style="color:#ff5c7a">менее 25%</b>Не пригодна: жизнь невозможна</div>
+    </div>
+
+    <h3 style="font-family:var(--display);font-size:17px;margin:26px 0 4px">Как сайт решает, что планеты не существует</h3>
+    <p style="color:#c3cbee;max-width:52em">Введённые значения проверяются дважды. Сначала на физику: планета не может быть плотнее шара из чистого железа, тяжелее 13 масс Юпитера (это уже коричневый карлик) или больше самых раздутых из известных горячих юпитеров. Затем по каталогу: сайт ищет подтверждённую планету, у которой одновременно близки радиус, масса, температура, давление, доля воды и поток излучения от звезды. Если совпадения нет, вместо планеты появляется чёрная дыра.</p>
+    <p style="color:#c3cbee;max-width:52em">Каталог содержит 21 хорошо изученную планету, поэтому надпись «не существует» честнее читать так: такой планеты нет среди известных нам миров этого каталога.</p>
+
+    <div class="panel answer">
+      <h3>Так можно ли предсказать пригодность планеты?</h3>
+      <p>Можно оценить необходимые условия, но не гарантировать жизнь. Индексы вроде этого помогают выбирать, какие планеты изучать телескопами в первую очередь, но не доказывают, что там кто-то живёт. Почему есть предел:</p>
+      <ul>
+        <li>У далёких планет обычно известны только радиус, масса и орбита. Атмосферу, воду и магнитное поле приходится оценивать по моделям.</li>
+        <li>Жизнь мы знаем в единственном экземпляре, на Земле, поэтому «идеал» в формуле — земной.</li>
+        <li>Индекс не видит геологию, тектонику, спутники и химию атмосферы, а именно они часто решают исход.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <p>Учебная модель, а не научный прибор. Данные планет округлены и упрощены; для экзопланет температура поверхности, давление, доля воды и магнитное поле — модельные допущения. Идеи взяты из индекса подобия Земле (Schulze-Makuch и др., 2011), границ зоны обитаемости (Kopparapu и др., 2013) и работы Rogers (2015) о переходе от каменистых планет к газовым. Значения сверяйте с NASA Exoplanet Archive.</p>
+  </footer>
+</div>
+</main>
+<noscript><p style="position:relative;z-index:2;padding:20px;color:#fff">Для работы лаборатории нужен JavaScript.</p></noscript>
+
+<script id="frag" type="x-shader/x-fragment">
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 u_res;
+uniform float u_time;
+uniform float u_mode;
+uniform float u_gas;
+uniform float u_ocean;
+uniform float u_cloud;
+uniform float u_atm;
+uniform float u_ring;
+uniform float u_seed;
+uniform float u_lava;
+uniform float u_ice;
+uniform vec3 u_c1;
+uniform vec3 u_c2;
+uniform vec3 u_c3;
+uniform vec3 u_atmc;
+uniform vec3 u_cloudc;
+uniform vec3 u_light;
+
+float hash(vec3 p){
+  p = fract(p * 0.3183099 + vec3(0.1));
+  p *= 17.0;
+  return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+}
+float vnoise(vec3 x){
+  vec3 i = floor(x);
+  vec3 f = fract(x);
+  f = f * f * (3.0 - 2.0 * f);
+  float n000 = hash(i);
+  float n100 = hash(i + vec3(1.0, 0.0, 0.0));
+  float n010 = hash(i + vec3(0.0, 1.0, 0.0));
+  float n110 = hash(i + vec3(1.0, 1.0, 0.0));
+  float n001 = hash(i + vec3(0.0, 0.0, 1.0));
+  float n101 = hash(i + vec3(1.0, 0.0, 1.0));
+  float n011 = hash(i + vec3(0.0, 1.0, 1.0));
+  float n111 = hash(i + vec3(1.0, 1.0, 1.0));
+  return mix(mix(mix(n000, n100, f.x), mix(n010, n110, f.x), f.y),
+             mix(mix(n001, n101, f.x), mix(n011, n111, f.x), f.y), f.z);
+}
+float fbm(vec3 p){
+  float v = 0.0;
+  float a = 0.5;
+  for(int i = 0; i < 5; i++){
+    v += a * vnoise(p);
+    p = p * 2.03 + vec3(1.7, 9.2, 3.1);
+    a *= 0.5;
+  }
+  return v;
+}
+
+vec4 planet(vec2 p){
+  float R = mix(0.56, 0.38, u_ring);
+  float r = length(p);
+  vec3 L = normalize(vec3(-0.62, 0.38, 0.68));
+  float edge = 1.0 - smoothstep(R - 0.005, R, r);
+  vec3 lit = vec3(0.0);
+
+  if(r < R){
+    vec2 q = p / R;
+    float z = sqrt(max(1.0 - dot(q, q), 0.0));
+    vec3 n = vec3(q, z);
+    float ang = u_time * 0.06 + u_seed;
+    float ca = cos(ang);
+    float sa = sin(ang);
+    vec3 pos = vec3(n.x * ca + n.z * sa, n.y, -n.x * sa + n.z * ca);
+    float ndl = dot(n, L);
+    float diff = smoothstep(-0.12, 0.9, ndl);
+    vec3 base = vec3(0.0);
+    vec3 emis = vec3(0.0);
+    float spec = 0.0;
+
+    if(u_gas > 0.5){
+      float turb = fbm(vec3(pos.x * 1.6, pos.y * 5.0, pos.z * 1.6) + vec3(u_seed * 5.0));
+      float b1 = sin(pos.y * 8.0 + turb * 5.0) * 0.5 + 0.5;
+      float b2 = sin(pos.y * 21.0 + turb * 9.0 + 1.3) * 0.5 + 0.5;
+      base = mix(u_c1, u_c2, b1);
+      base = mix(base, u_c3, smoothstep(0.55, 1.0, b2) * 0.65);
+      base *= 0.82 + 0.36 * turb;
+    } else {
+      vec3 sp = pos * 2.3 + vec3(u_seed * 7.0);
+      float h = fbm(sp);
+      h = h + 0.12 * (vnoise(sp * 8.0) - 0.5);
+      float sea = 0.0;
+      if(u_ocean > 0.985){
+        sea = 2.0;
+      } else if(u_ocean >= 0.02){
+        sea = 0.26 + 0.44 * u_ocean;
+      }
+      float coast = smoothstep(sea - 0.012, sea + 0.012, h);
+      vec3 ocol = mix(u_c1 * 0.55, u_c1 * 1.2, smoothstep(sea - 0.28, sea, h));
+      float el = clamp((h - sea) / 0.35, 0.0, 1.0);
+      float det = vnoise(sp * 5.0);
+      vec3 lcol = mix(u_c2, u_c3, clamp(el * 1.1 + (det - 0.5) * 0.9, 0.0, 1.0));
+      base = mix(ocol, lcol, coast);
+      float icemask = 0.0;
+      if(u_ice > 0.001){
+        float lat = abs(pos.y);
+        float iceEdge = 1.0 - 0.78 * u_ice;
+        float iceN = (vnoise(sp * 1.6 + vec3(5.0)) - 0.5) * 0.35;
+        icemask = smoothstep(iceEdge - 0.04, iceEdge + 0.04, lat + iceN);
+        base = mix(base, vec3(0.92, 0.95, 1.0) * (0.9 + 0.2 * h), icemask);
+      }
+      if(u_lava > 0.001){
+        float crack = 1.0 - abs(fbm(sp * 1.5 + vec3(11.0)) - 0.48) * 5.0;
+        float veins = smoothstep(0.86, 0.985, crack) * u_lava;
+        base = mix(base, base * 0.35, u_lava * 0.7 * coast);
+        emis = vec3(1.0, 0.36, 0.05) * veins * 1.6 * coast + vec3(1.0, 0.5, 0.1) * u_lava * 0.08 * coast;
+      }
+      spec = (1.0 - coast) * (1.0 - icemask);
+    }
+
+    float cm = 0.0;
+    if(u_gas < 0.5){
+      float cl = fbm(pos * 3.0 + vec3(u_time * 0.015, 0.0, u_seed * 3.0) + vec3(20.0));
+      float t0 = mix(0.74, 0.18, u_cloud);
+      cm = smoothstep(t0, t0 + 0.14, cl) * smoothstep(0.0, 0.05, u_cloud);
+    }
+
+    vec3 surf = base * (u_light * diff * 1.25 + vec3(0.035, 0.04, 0.06));
+    vec3 Rv = reflect(-L, n);
+    float sp2 = pow(max(dot(Rv, vec3(0.0, 0.0, 1.0)), 0.0), 36.0);
+    surf += u_light * sp2 * spec * 0.55 * (1.0 - cm);
+    vec3 ccol = u_cloudc * (u_light * diff * 1.2 + vec3(0.05, 0.055, 0.07));
+    surf = mix(surf, ccol, cm * 0.92);
+    surf += emis * (1.0 - cm * 0.9);
+    float fres = pow(1.0 - z, 2.6);
+    surf += u_atmc * fres * u_atm * (0.12 + 1.5 * smoothstep(-0.35, 0.85, ndl));
+    lit = clamp(surf, 0.0, 1.0);
+  }
+
+  float glow = exp(-max(r - R, 0.0) * 20.0) * u_atm * 0.85;
+  vec2 dirp = vec2(0.0);
+  if(r > 0.0001){ dirp = p / r; }
+  float side = 0.3 + 0.7 * smoothstep(-0.5, 0.9, dot(dirp, normalize(L.xy)));
+  float ga = clamp(glow * side, 0.0, 1.0);
+  vec3 outc = lit * edge + u_atmc * ga * (1.0 - edge);
+  float outa = edge + ga * (1.0 - edge);
+
+  if(u_ring > 0.5){
+    float tilt = -0.42;
+    float ct = cos(tilt);
+    float st = sin(tilt);
+    vec2 pr = vec2(ct * p.x - st * p.y, st * p.x + ct * p.y);
+    float ey = pr.y / 0.27;
+    float rr = length(vec2(pr.x, ey)) / R;
+    float dens = smoothstep(1.28, 1.34, rr) * (1.0 - smoothstep(2.15, 2.25, rr));
+    dens *= 0.55 + 0.45 * sin(rr * 46.0);
+    dens *= 1.0 - 0.85 * (1.0 - smoothstep(0.0, 0.03, abs(rr - 1.78)));
+    dens = clamp(dens, 0.0, 1.0) * 0.92;
+    if(pr.y < 0.0 || r > R){
+      vec3 rc = clamp(u_c3 * (vec3(0.55) + 0.6 * u_light), 0.0, 1.0);
+      outc = outc * (1.0 - dens) + rc * dens;
+      outa = outa * (1.0 - dens) + dens;
+    }
+  }
+  return vec4(outc, outa);
+}
+
+vec4 blackhole(vec2 p){
+  vec2 q = p * 0.65;
+  float r = length(q);
+  float Rs = 0.22;
+  float t = u_time;
+
+  vec2 dp = vec2(q.x, q.y * 4.0);
+  float dr = length(dp);
+  float ang = t * 1.1 / (dr + 0.25);
+  float ca = cos(ang);
+  float sa = sin(ang);
+  vec2 rp = vec2(ca * dp.x - sa * dp.y, sa * dp.x + ca * dp.y);
+  float turb = fbm(vec3(rp * 7.0, t * 0.12));
+  float dmask = (1.0 - smoothstep(0.30, 0.66, dr)) * smoothstep(0.235, 0.34, dr);
+  float dop = 1.0 + 0.7 * (dp.x / max(dr, 0.08));
+  vec3 hot = mix(vec3(1.0, 0.30, 0.04), vec3(1.0, 0.93, 0.78), 1.0 - smoothstep(0.27, 0.62, dr));
+  vec3 disk = hot * dmask * (0.3 + 1.7 * turb) * dop;
+
+  float d1 = (r - 0.283) / 0.034;
+  float arc = exp(-d1 * d1);
+  float upper = 0.35 + 0.65 * smoothstep(-0.12, 0.28, q.y);
+  float lt = 0.55 + fbm(vec3(q * 9.0, t * 0.1 + 3.0));
+  vec3 lens = mix(vec3(1.0, 0.35, 0.06), vec3(1.0, 0.85, 0.6), 0.45) * arc * upper * lt * 1.25 * (1.0 + 0.5 * q.x / max(r, 0.1));
+  float d2 = (r - 0.232) / 0.007;
+  float photon = exp(-d2 * d2);
+
+  vec3 col = lens + vec3(1.0, 0.92, 0.78) * photon * 1.3;
+  col += vec3(1.0, 0.42, 0.10) * exp(-r * 5.0) * 0.33;
+
+  float inHole = 1.0 - smoothstep(Rs - 0.008, Rs, r);
+  float front = step(q.y, 0.0);
+  col += disk * (front + (1.0 - front) * (1.0 - inHole));
+  float keep = front * min(dmask * 5.0, 1.0);
+  col *= 1.0 - inHole * (1.0 - keep);
+
+  col = vec3(1.0) - exp(-col * 1.5);
+  float a = max(max(col.r, col.g), col.b);
+  a = max(a, inHole);
+  return vec4(col, a);
+}
+
+void main(){
+  vec2 p = (gl_FragCoord.xy - 0.5 * u_res) / (0.5 * min(u_res.x, u_res.y));
+  if(u_mode > 0.5){
+    gl_FragColor = blackhole(p);
+  } else {
+    gl_FragColor = planet(p);
+  }
+}
+</script>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- helpers ---------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function interp(x, pts){
+  if (x <= pts[0][0]) return pts[0][1];
+  for (let i = 1; i < pts.length; i++){
+    if (x <= pts[i][0]){
+      const a = pts[i-1], b = pts[i];
+      return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]);
+    }
+  }
+  return pts[pts.length - 1][1];
+}
+function nf(n, dg){
+  if (dg === undefined) dg = 2;
+  if (!isFinite(n)) return '—';
+  const a = Math.abs(n);
+  let s;
+  if (a === 0) s = '0';
+  else if (a >= 1000) s = Math.round(n).toLocaleString('ru-RU');
+  else if (a >= 100) s = n.toFixed(0);
+  else if (a >= 10) s = n.toFixed(1);
+  else if (a >= 1) s = n.toFixed(dg);
+  else s = n.toPrecision(2);
+  return s.replace('.', ',').replace('-', '−');
+}
+const numToStr = n => String(parseFloat(Number(n).toPrecision(4))).replace('.', ',');
+function parseNum(s){
+  s = String(s).trim().replace(/\s/g, '').replace(',', '.');
+  if (!/^[-+]?(\d+\.?\d*|\.\d+)(e[-+]?\d+)?$/i.test(s)) return NaN;
+  return parseFloat(s);
+}
+
+/* ---------- star classes ---------- */
+const STAR = {
+  'M':   {t:'M, красный карлик',            tint:[1.00,0.60,0.38]},
+  'K':   {t:'K, оранжевый карлик',          tint:[1.00,0.80,0.58]},
+  'G':   {t:'G, жёлтый карлик, как Солнце', tint:[1.00,0.97,0.90]},
+  'F':   {t:'F, жёлто-белая звезда',        tint:[0.96,0.97,1.00]},
+  'A/B': {t:'A/B, горячая бело-голубая',    tint:[0.72,0.84,1.00]}
+};
+const starClass = L => L < 0.08 ? 'M' : L < 0.6 ? 'K' : L < 1.5 ? 'G' : L < 6 ? 'F' : 'A/B';
+
+/* ---------- physics ---------- */
+function boilK(P){
+  const den = 1/373.15 - (8.314/40660) * Math.log(P/1.01325);
+  return den > 0 ? Math.min(1/den, 647) : 647;
+}
+function derive(v){
+  const Tk = v.T + 273.15;
+  const S = v.L / (v.D * v.D);
+  return {
+    g: v.M / (v.R * v.R),
+    rho: 5.51 * v.M / Math.pow(v.R, 3),
+    vesc: 11.186 * Math.sqrt(v.M / v.R),
+    S: S,
+    Teq: 255 * Math.pow(S, 0.25),
+    cls: starClass(v.L),
+    Tk: Tk,
+    liquid: v.P >= 0.0061 && Tk >= 273.15 && Tk <= boilK(v.P)
+  };
+}
+
+/* ---------- index parameters ---------- */
+const PARAMS = [
+  {k:'R', name:'Радиус', unit:'R⊕', min:0.01, max:100, w:1.5, ideal:'0,8–1,5 R⊕',
+   why:'Планеты крупнее примерно 1,6 R⊕ обычно оказываются мини-Нептунами с толстой газовой оболочкой и без твёрдой поверхности. Совсем маленькие не удерживают атмосферу.',
+   f:(v)=>interp(v.R,[[0.3,0],[0.5,0.5],[0.8,1],[1.5,1],[1.8,0.4],[2.5,0.03],[3.2,0]]),
+   meta:(v,d)=>'идеал: 0,8–1,5'},
+  {k:'M', name:'Масса', unit:'M⊕', min:0.001, max:100000, w:1.5, ideal:'g = 0,7–1,4 g⊕',
+   why:'Масса и радиус дают ускорение свободного падения g = M/R². От него зависит, удержит ли планета атмосферу и смогут ли сложные организмы двигаться.',
+   f:(v,d)=>interp(d.g,[[0.2,0],[0.4,0.3],[0.7,1],[1.4,1],[2.0,0.5],[3.0,0.05],[4.0,0]]),
+   meta:(v,d)=>'g = '+nf(d.g)+' g⊕, идеал 0,7–1,4'},
+  {k:'T', name:'Средняя температура поверхности', unit:'°C', min:-273.15, max:10000, w:3, ideal:'8–28 °C',
+   why:'Окно, в котором вода остаётся жидкой, а сложная органика стабильной. Простейшие микробы живут от −20 до +122 °C, но сложная жизнь — в куда более узком диапазоне.',
+   f:(v)=>interp(v.T,[[-70,0],[-15,0.3],[0,0.75],[8,1],[28,1],[45,0.6],[70,0.15],[100,0]]),
+   meta:()=>'идеал: 8–28 °C'},
+  {k:'P', name:'Давление атмосферы', unit:'бар', min:0, max:100000, w:2, ideal:'0,4–3 бар',
+   why:'Ниже 0,006 бар (тройная точка воды) жидкая вода невозможна, а на Венере (92 бар) давление раздавило бы любой организм. Атмосфера ещё и защищает от радиации. У газовых гигантов давление указано на уровне 1 бар.',
+   f:(v)=>v.P <= 1e-4 ? 0 : interp(Math.log10(v.P),[[-2.3,0],[-1.3,0.35],[-0.4,1],[0.5,1],[1,0.5],[1.7,0.1],[2.0,0]]),
+   meta:()=>'идеал: 0,4–3 бар'},
+  {k:'W', name:'Поверхность под водой', unit:'%', min:0, max:100, w:2.5, ideal:'25–90 %',
+   why:'Жидкая вода — универсальный растворитель для всей известной нам биохимии. Мир, целиком покрытый океаном без суши, тоже далёк от идеала.',
+   f:(v)=>interp(v.W,[[0,0],[1,0.03],[8,0.35],[25,1],[90,1],[100,0.5]]),
+   meta:()=>'идеал: 25–90 %'},
+  {k:'B', name:'Магнитное поле', unit:'B⊕', min:0, max:10000, w:1, ideal:'0,6–6 B⊕',
+   why:'Магнитное поле защищает атмосферу от звёздного ветра (Марс потерял воздух отчасти из-за его отсутствия) и живые клетки от радиации.',
+   f:(v)=>interp(v.B,[[0,0.12],[0.05,0.3],[0.3,0.85],[0.6,1],[6,1],[25,0.55],[100,0.3]]),
+   meta:()=>'идеал: 0,6–6'},
+  {k:'L', name:'Светимость звезды', unit:'L☉', min:0.00001, max:10000000, w:1.5, ideal:'класс G или K',
+   why:'Красные карлики (M) дают вспышки и «приковывают» планету одной стороной, звёзды классов A и B живут слишком недолго для эволюции. G и K — золотая середина.',
+   f:(v,d)=>({'M':0.5,'K':1,'G':1,'F':0.8,'A/B':0.15})[d.cls],
+   meta:(v,d)=>'класс '+d.cls+', идеал G или K'},
+  {k:'D', name:'Расстояние до звезды', unit:'а.е.', min:0.0001, max:100000, w:1.5, ideal:'S = 0,5–1,1 S⊕',
+   why:'Вместе со светимостью задаёт поток излучения S = L/d², то есть попадание в зону обитаемости — область, где вода может быть жидкой.',
+   f:(v,d)=>interp(d.S,[[0.15,0],[0.32,0.5],[0.5,1],[1.1,1],[1.6,0.5],[2.2,0.05],[3,0]]),
+   meta:(v,d)=>'S = '+nf(d.S)+' S⊕, идеал 0,5–1,1'},
+  {k:'E', name:'Эксцентриситет орбиты', unit:'0…1', min:0, max:0.99, w:0.8, ideal:'e < 0,25',
+   why:'Сильно вытянутая орбита даёт экстремальные перепады температуры: планета то остывает вдали от звезды, то поджаривается вблизи.',
+   f:(v)=>interp(v.E,[[0,1],[0.25,1],[0.45,0.6],[0.65,0.2],[0.85,0.02],[1,0]]),
+   meta:()=>'идеал: меньше 0,25'}
+];
+
+function scoreAll(v, d){
+  const sc = {};
+  let sw = 0, sl = 0;
+  PARAMS.forEach(p => {
+    const s = clamp(p.f(v, d), 0, 1);
+    sc[p.k] = s;
+    sw += p.w;
+    sl += p.w * Math.log(Math.max(s, 0.01));
+  });
+  return {sc: sc, idx: Math.exp(sl / sw)};
+}
+
+/* ---------- catalog ---------- */
+const lk = (gas, c1, c2, c3, atmc, atm, cloud, seed, o) =>
+  Object.assign({gas: gas, c1: c1, c2: c2, c3: c3, atmc: atmc, atm: atm, cloud: cloud, seed: seed, cloudc: [1,1,1], ring: 0}, o || {});
+const mk = (id, name, grp, sub, R, M, T, Pr, W, B, L, D, E, look, blurb) =>
+  ({id: id, name: name, grp: grp, sub: sub, R: R, M: M, T: T, P: Pr, W: W, B: B, L: L, D: D, E: E, look: look, blurb: blurb});
+
+const PLANETS = [
+  mk('mercury','Меркурий','sol','Солнечная система',0.383,0.055,167,0,0,0.01,1,0.387,0.206,
+     lk(false,[.3,.3,.3],[.52,.48,.44],[.25,.24,.23],[.5,.5,.5],0,0,0.7),
+     'Ближайшая к Солнцу: почти нет атмосферы, перепад температур больше 500 °C.'),
+  mk('venus','Венера','sol','Солнечная система',0.949,0.815,464,92,0,0,1,0.723,0.007,
+     lk(false,[.3,.3,.3],[.75,.55,.25],[.55,.35,.15],[1,.8,.45],0.8,1,1.2,{cloudc:[.98,.86,.55]}),
+     'Парниковый ад: давление в 92 раза выше земного и облака из серной кислоты.'),
+  mk('earth','Земля','sol','Солнечная система',1,1,15,1,71,1,1,1,0.017,
+     lk(false,[.03,.20,.55],[.22,.48,.18],[.55,.5,.35],[.4,.65,1],1,0.55,0.3),
+     'Единственный известный дом жизни, эталон для всех остальных оценок.'),
+  mk('mars','Марс','sol','Солнечная система',0.532,0.107,-63,0.006,0,0,1,1.524,0.093,
+     lk(false,[.15,.12,.1],[.78,.36,.17],[.4,.17,.1],[.95,.6,.4],0.25,0.08,1.4,{cloudc:[.95,.85,.8]}),
+     'Холодная пустыня с тонкой атмосферой и следами древней воды.'),
+  mk('jupiter','Юпитер','sol','Солнечная система',10.97,317.8,-108,1,0,20,1,5.203,0.049,
+     lk(true,[.86,.72,.55],[.62,.40,.27],[.96,.92,.85],[.9,.75,.55],0.35,0,2.1),
+     'Газовый гигант без твёрдой поверхности. Давление указано на уровне 1 бар.'),
+  mk('saturn','Сатурн','sol','Солнечная система',9.14,95.2,-139,1,0,0.6,1,9.537,0.054,
+     lk(true,[.92,.82,.58],[.76,.65,.45],[.97,.93,.8],[.95,.85,.6],0.3,0,3.3,{ring:1}),
+     'Газовый гигант с самой заметной системой колец.'),
+
+  mk('proxima','Проксима Центавра b','exo','Проксима Центавра, 4,2 св. года',1.1,1.07,-9,1,25,0.3,0.0016,0.0485,0.05,
+     lk(false,[.06,.10,.28],[.42,.22,.16],[.22,.12,.1],[.9,.5,.4],0.6,0.5,4.2),
+     'Ближайшая к нам экзопланета. Вероятно, всегда повёрнута к красному карлику одной стороной.'),
+  mk('trappist1e','TRAPPIST-1e','exo','TRAPPIST-1, около 40 св. лет',0.92,0.69,3,1,50,0.5,0.00055,0.0292,0.005,
+     lk(false,[.05,.18,.35],[.4,.32,.25],[.2,.16,.14],[.8,.55,.5],0.6,0.45,5.1),
+     'Одна из семи планет у ультрахолодного карлика, лежит в зоне обитаемости.'),
+  mk('trappist1f','TRAPPIST-1f','exo','TRAPPIST-1, около 40 св. лет',1.045,1.04,-25,1,55,0.5,0.00055,0.0385,0.01,
+     lk(false,[.1,.25,.4],[.55,.6,.65],[.3,.35,.4],[.8,.6,.6],0.6,0.5,6.4),
+     'Более холодная соседка TRAPPIST-1e, возможно, с ледяным покровом.'),
+  mk('kepler452b','Kepler-452b','exo','Kepler-452, около 1400 св. лет',1.63,5,20,3,50,1.5,1.2,1.046,0,
+     lk(false,[.02,.2,.4],[.2,.4,.18],[.5,.42,.25],[.5,.75,1],1,0.6,7.7),
+     '«Двоюродная сестра Земли»: похожие звезда и орбита, но сама планета крупнее.'),
+  mk('kepler186f','Kepler-186f','exo','Kepler-186, около 580 св. лет',1.17,1.44,-30,1.5,40,0.6,0.055,0.432,0.04,
+     lk(false,[.03,.13,.3],[.35,.15,.4],[.2,.1,.25],[.75,.5,.8],0.7,0.4,8.2),
+     'Первая землеподобная планета в зоне обитаемости, найденная телескопом Kepler.'),
+  mk('kepler22b','Kepler-22b','exo','Kepler-22, около 640 св. лет',2.38,9,20,30,100,1,0.79,0.85,0,
+     lk(false,[.1,.4,.55],[.7,.9,.95],[.4,.6,.7],[.5,.8,1],1,0.9,9),
+     'Первая планета Kepler в зоне обитаемости. Скорее всего, мини-Нептун без суши.'),
+  mk('kepler442b','Kepler-442b','exo','Kepler-442, около 1200 св. лет',1.34,2.36,-5,1.5,60,1.2,0.117,0.409,0.04,
+     lk(false,[.04,.2,.35],[.15,.35,.25],[.4,.35,.3],[.5,.75,.95],0.9,0.5,10.3),
+     'Один из самых перспективных кандидатов среди планет Kepler.'),
+  mk('gj667cc','Gliese 667 Cc','exo','Gliese 667 C, около 24 св. лет',1.5,3.8,20,2,40,0.8,0.014,0.125,0.02,
+     lk(false,[.1,.15,.35],[.45,.25,.2],[.25,.15,.12],[.9,.55,.4],0.7,0.5,11),
+     'Суперземля у красного карлика в тройной звёздной системе.'),
+  mk('toi700d','TOI-700 d','exo','TOI-700, около 100 св. лет',1.14,1.57,0,1,50,0.7,0.0233,0.163,0.08,
+     lk(false,[.05,.2,.4],[.35,.35,.2],[.5,.45,.3],[.85,.65,.5],0.7,0.45,12.4),
+     'Землеподобная планета в зоне обитаемости, открытая телескопом TESS.'),
+  mk('lhs1140b','LHS 1140 b','exo','LHS 1140, около 49 св. лет',1.73,5.6,-20,1,80,1,0.0038,0.0936,0.06,
+     lk(false,[.15,.3,.5],[.85,.9,.95],[.5,.6,.7],[.7,.75,.9],0.6,0.5,13),
+     'Крупная суперземля, возможно, покрытая океаном под ледяной коркой.'),
+  mk('k218b','K2-18 b','exo','K2-18, около 124 св. лет',2.61,8.6,15,100,100,1,0.023,0.143,0.09,
+     lk(false,[.2,.55,.65],[.75,.9,.95],[.35,.55,.7],[.5,.85,.95],1,0.8,14),
+     'Кандидат в «гикеанские» миры с водородной атмосферой и океаном. В атмосфере нашли метан и углекислый газ.'),
+  mk('teegarden','Teegarden\u2019s Star b','exo','Звезда Тигардена, около 12,5 св. лет',1.02,1.05,8,1,30,0.7,0.00073,0.0259,0.03,
+     lk(false,[.05,.15,.3],[.4,.28,.2],[.2,.13,.1],[.9,.55,.4],0.6,0.4,15),
+     'Одна из ближайших землеподобных планет, обращается вокруг красного карлика.'),
+  mk('kepler1649c','Kepler-1649 c','exo','Kepler-1649, около 300 св. лет',1.06,1.2,-6,1,40,0.7,0.0032,0.0649,0.06,
+     lk(false,[.06,.12,.3],[.5,.28,.18],[.25,.13,.1],[.95,.55,.4],0.7,0.5,16),
+     'Получает почти столько же излучения, сколько Земля, но от красного карлика.'),
+  mk('cancri55e','55 Cancri e','exo','55 Рака, около 41 св. года',1.88,8,1400,1.5,0,0.5,0.6,0.0154,0.05,
+     lk(false,[.15,.1,.09],[.15,.1,.09],[.08,.06,.06],[1,.5,.2],0.7,0.15,17,{cloudc:[.4,.3,.25]}),
+     'Лавовый мир: год длится меньше суток, поверхность раскалена.'),
+  mk('hd209458b','HD 209458 b','exo','HD 209458, около 160 св. лет',15.2,219,1130,1,0,3,1.7,0.0475,0.014,
+     lk(true,[.95,.55,.25],[.75,.32,.15],[1,.8,.5],[1,.55,.25],1,0,18),
+     '«Горячий юпитер», первая планета, у которой обнаружили атмосферу.')
+];
+const EARTH = PLANETS.find(p => p.id === 'earth');
+PLANETS.forEach(p => { p.d = derive(p); });
+
+/* ---------- existence checks ---------- */
+function physCheck(v, d){
+  if (v.M > 4130) return {ok:false, why:'Масса больше 13 масс Юпитера — это уже коричневый карлик, а не планета.'};
+  if (v.R > 25) return {ok:false, why:'Радиус больше 2,2 радиуса Юпитера. Даже самые раздутые известные планеты меньше.'};
+  const rIron = 0.77 * Math.pow(v.M, 0.26);
+  if (v.R < rIron * 0.95) return {ok:false, why:'Такая масса в таком объёме плотнее планеты, целиком сделанной из железа (плотность '+nf(d.rho,1)+' г/см³). Вещества с такой плотностью нет.'};
+  if (d.rho < 0.03) return {ok:false, why:'Плотность '+nf(d.rho)+' г/см³ ниже, чем у самых рыхлых из известных планет.'};
+  return {ok:true};
+}
+const DEV_NAMES = {R:'радиус', M:'масса', T:'температура', S:'поток от звезды', P:'давление', W:'вода'};
+function findMatch(v, d){
+  const lg = x => x < 1e-4 ? -4 : Math.log10(x);
+  let best = null;
+  PLANETS.forEach(pl => {
+    const dev = {
+      R: Math.abs(v.R - pl.R) / pl.R / 0.15,
+      M: Math.abs(v.M - pl.M) / pl.M / 0.30,
+      T: Math.abs(v.T - pl.T) / Math.max(20, 0.12 * (pl.T + 273.15)),
+      S: Math.abs(Math.log(d.S / pl.d.S)) / Math.log(1.6),
+      P: Math.abs(lg(v.P) - lg(pl.P)) / Math.log10(4),
+      W: Math.abs(v.W - pl.W) / 25
+    };
+    let sum = 0, cnt = 0, ok = true;
+    const bad = [];
+    Object.keys(dev).forEach(k => {
+      sum += Math.min(dev[k], 5); cnt++;
+      if (dev[k] > 1){ ok = false; bad.push(DEV_NAMES[k]); }
+    });
+    const avg = sum / cnt;
+    if (!best || avg < best.avg) best = {pl: pl, avg: avg, ok: ok, bad: bad};
+  });
+  return best;
+}
+
+/* ---------- UI: params ---------- */
+const els = {};
+(function buildParams(){
+  const host = $('#params');
+  PARAMS.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'param';
+    row.innerHTML =
+      '<label for="in-'+p.k+'"><span>'+p.name+'</span><span class="punit">'+p.unit+'</span></label>'+
+      '<input id="in-'+p.k+'" type="text" inputmode="decimal" autocomplete="off" spellcheck="false">'+
+      '<div class="bar"><i></i></div>'+
+      '<div class="pmeta"><span class="pm"></span><span class="ps"></span></div>';
+    host.appendChild(row);
+    els[p.k] = {row: row, input: $('input', row), bar: $('.bar i', row), pm: $('.pm', row), ps: $('.ps', row)};
+  });
+  const tb = $('#ptable');
+  PARAMS.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td>'+p.name+'</td><td class="w">×'+String(p.w).replace('.',',')+'</td><td>'+p.ideal+'</td><td>'+p.why+'</td>';
+    tb.appendChild(tr);
+  });
+})();
+
+/* ---------- UI: chips ---------- */
+const chipEls = {};
+function orbBg(pl){
+  const c = pl.look;
+  const a = (pl.W > 0 || c.gas) ? c.c1 : c.c2;
+  const b = c.gas ? c.c2 : (pl.W > 0 ? c.c2 : c.c3);
+  const rgb = x => 'rgb('+x.map(t => Math.round(t*255)).join(',')+')';
+  return 'radial-gradient(circle at 30% 26%,rgba(255,255,255,.5),transparent 40%),linear-gradient(140deg,'+rgb(a)+','+rgb(b)+')';
+}
+PLANETS.forEach(pl => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'chip';
+  b.setAttribute('aria-pressed', 'false');
+  const idx = Math.round(scoreAll(pl, pl.d).idx * 100);
+  b.innerHTML = '<span class="orb" style="background:'+orbBg(pl)+'"></span><span>'+pl.name+'</span><small>'+idx+'%</small>';
+  b.addEventListener('click', () => fill(pl));
+  (pl.grp === 'sol' ? $('#chips-sol') : $('#chips-exo')).appendChild(b);
+  chipEls[pl.id] = b;
+});
+function setActiveChip(id){
+  Object.keys(chipEls).forEach(k => chipEls[k].setAttribute('aria-pressed', k === id ? 'true' : 'false'));
+}
+
+/* ---------- experiments ---------- */
+const EXPS = [
+  {t:'Радиус Земли ×3', set:{R:3}},
+  {t:'Земля без воды', set:{W:0}},
+  {t:'Земля у звезды в 50 L☉', set:{L:50}},
+  {t:'Масса как у Юпитера, радиус Земли', set:{M:318}}
+];
+EXPS.forEach(e => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.textContent = e.t;
+  b.addEventListener('click', () => {
+    PARAMS.forEach(p => { els[p.k].input.value = numToStr(e.set[p.k] !== undefined ? e.set[p.k] : EARTH[p.k]); });
+    update();
+  });
+  $('#exps').appendChild(b);
+});
+
+/* ---------- gauge ---------- */
+let gShown = 0, gTok = 0;
+const gnum = $('#gnum'), gfg = $('#gfg');
+function setGauge(val){
+  const from = gShown, to = val, t0 = performance.now(), tok = ++gTok;
+  function f(n){
+    if (tok !== gTok) return;
+    const k = reduce ? 1 : Math.min(1, (n - t0) / 700);
+    const e = 1 - Math.pow(1 - k, 3);
+    const x = from + (to - from) * e;
+    gShown = x;
+    gnum.textContent = Math.round(x);
+    gfg.style.strokeDasharray = x.toFixed(2) + ' 100';
+    if (k < 1) requestAnimationFrame(f);
+  }
+  requestAnimationFrame(f);
+}
+
+/* ---------- verdict ---------- */
+function tierOf(i){
+  if (i >= 0.75) return {c:'#5dffb0', t:'Пригодна для жизни', s:'Условия близки к земным: жидкая вода, умеренная температура, защищённая атмосфера.'};
+  if (i >= 0.5)  return {c:'#d4f45c', t:'Условно пригодна', s:'Жизнь возможна, но потребуются адаптация или технологии: часть параметров заметно отличается от земных.'};
+  if (i >= 0.25) return {c:'#ffa94d', t:'Не пригодна для жизни', s:'Условия экстремальные: выжить могли бы лишь особо стойкие микроорганизмы.'};
+  return {c:'#ff5c7a', t:'Не пригодна для жизни', s:'Известные формы жизни здесь существовать не могут.'};
+}
+
+function buildWarnings(v, d){
+  const w = [];
+  if (!d.liquid){
+    if (v.P < 0.0061) w.push('Давление ниже тройной точки воды (0,006 бар): жидкой воды на поверхности быть не может.');
+    else if (d.Tk < 273.15) w.push('Средняя температура ниже 0 °C: вода в основном замёрзла, жидкая бывает лишь местами или под льдом.');
+    else w.push('При таком давлении вода кипит уже при '+Math.round(boilK(v.P) - 273.15)+' °C: жидких океанов нет.');
+  }
+  if (d.Tk > d.Teq + 70 && v.P < 3) w.push('Поверхность горячее, чем даёт поток от звезды. Для такого нагрева нужен сильный парниковый эффект, а атмосфера тонкая.');
+  if (d.Tk < d.Teq - 70) w.push('Поверхность заметно холоднее равновесной температуры: возможно, высокое альбедо (льды, облака).');
+  if (v.R > 1.6) w.push('Радиус больше 1,6 R⊕: такие планеты чаще всего газовые или водные, без твёрдой поверхности.');
+  if (d.g > 2) w.push('Гравитация выше 2 g: сложным организмам было бы очень тяжело.');
+  if (d.g < 0.4) w.push('Слабая гравитация: планета плохо удерживает атмосферу.');
+  if (d.cls === 'M') w.push('Красный карлик: частые вспышки и приливный захват могут сорвать атмосферу.');
+  if (d.cls === 'A/B') w.push('Такая звезда живёт меньше миллиарда лет: для эволюции жизни времени мало.');
+  if (v.B < 0.1) w.push('Слабое магнитное поле: звёздный ветер может сдуть атмосферу, как на Марсе.');
+  if (v.E > 0.4) w.push('Вытянутая орбита: сильные перепады температуры между сезонами.');
+  return w.slice(0, 4);
+}
+
+/* ---------- WebGL ---------- */
+let glc = $('#gl');
+let gl = null, prog = null, U = {};
+let mode = 0;
+const zero3 = [0,0,0];
+const tgt = {gas:0, ring:0, seed:0.3, ocean:0.7, cloud:0.5, atm:1, lava:0, ice:0.08,
+  c1:EARTH.look.c1.slice(), c2:EARTH.look.c2.slice(), c3:EARTH.look.c3.slice(),
+  atmc:EARTH.look.atmc.slice(), cloudc:[1,1,1], light:STAR.G.tint.slice()};
+const cur = JSON.parse(JSON.stringify(tgt));
+const LS = ['ocean','cloud','atm','lava','ice'], LV = ['c1','c2','c3','atmc','cloudc','light'];
+
+function initGL(){
+  try {
+    gl = glc.getContext('webgl', {alpha:true, premultipliedAlpha:true, antialias:false}) ||
+         glc.getContext('experimental-webgl', {alpha:true, premultipliedAlpha:true});
+  } catch(e){ gl = null; }
+  if (!gl) return false;
+  const vs = 'attribute vec2 a_pos; void main(){ gl_Position = vec4(a_pos, 0.0, 1.0); }';
+  const fs = $('#frag').textContent;
+  function sh(type, src){
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)){
+      console.error(gl.getShaderInfoLog(s));
+      return null;
+    }
+    return s;
+  }
+  const v = sh(gl.VERTEX_SHADER, vs), f = sh(gl.FRAGMENT_SHADER, fs);
+  if (!v || !f) return false;
+  prog = gl.createProgram();
+  gl.attachShader(prog, v); gl.attachShader(prog, f);
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)){ console.error(gl.getProgramInfoLog(prog)); return false; }
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'a_pos');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  ['u_res','u_time','u_mode','u_gas','u_ocean','u_cloud','u_atm','u_ring','u_seed','u_lava','u_ice',
+   'u_c1','u_c2','u_c3','u_atmc','u_cloudc','u_light'].forEach(n => { U[n] = gl.getUniformLocation(prog, n); });
+  return true;
+}
+let glOK = initGL();
+if (!glOK){
+  const nc = document.createElement('canvas');
+  nc.id = 'gl';
+  glc.replaceWith(nc);
+  glc = nc;
+  gl = null;
+}
+
+function fitCanvas(){
+  const r = glc.getBoundingClientRect();
+  const s = Math.max(200, Math.min(760, Math.round(r.width * Math.min(window.devicePixelRatio || 1, 2))));
+  if (glc.width !== s){ glc.width = s; glc.height = s; }
+  if (gl) gl.viewport(0, 0, s, s);
+}
+if (window.ResizeObserver) new ResizeObserver(() => { fitCanvas(); if (!glOK) drawFallback(); }).observe(glc);
+window.addEventListener('resize', () => { fitCanvas(); if (!glOK) drawFallback(); });
+
+function drawFallback(){
+  const c = glc.getContext('2d');
+  if (!c) return;
+  const s = glc.width;
+  c.clearRect(0, 0, s, s);
+  const rgb = x => 'rgb('+x.map(t => Math.round(t*255)).join(',')+')';
+  if (mode === 1){
+    c.beginPath(); c.arc(s/2, s/2, s*0.17, 0, 6.283);
+    c.fillStyle = '#000'; c.fill();
+    c.lineWidth = s*0.02; c.strokeStyle = '#ffab5c'; c.stroke();
+  } else {
+    const g = c.createRadialGradient(s*0.4, s*0.38, s*0.04, s/2, s/2, s*0.28);
+    g.addColorStop(0, rgb(tgt.gas ? tgt.c1 : (tgt.ocean > 0.3 ? tgt.c1 : tgt.c2)));
+    g.addColorStop(1, '#05060f');
+    c.beginPath(); c.arc(s/2, s/2, s*0.28, 0, 6.283);
+    c.fillStyle = g; c.fill();
+  }
+}
+
+let lastNow = performance.now();
+const t0 = performance.now();
+function loop(now){
+  const dt = Math.min(0.1, (now - lastNow) / 1000);
+  lastNow = now;
+  const k = 1 - Math.exp(-dt * 6);
+  LS.forEach(n => { cur[n] += (tgt[n] - cur[n]) * k; });
+  LV.forEach(n => { for (let i = 0; i < 3; i++) cur[n][i] += (tgt[n][i] - cur[n][i]) * k; });
+  cur.gas = tgt.gas; cur.ring = tgt.ring; cur.seed = tgt.seed;
+  if (glOK){
+    const t = reduce ? 3.0 : (now - t0) / 1000;
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform2f(U.u_res, glc.width, glc.height);
+    gl.uniform1f(U.u_time, t);
+    gl.uniform1f(U.u_mode, mode);
+    gl.uniform1f(U.u_gas, cur.gas);
+    gl.uniform1f(U.u_ocean, cur.ocean);
+    gl.uniform1f(U.u_cloud, cur.cloud);
+    gl.uniform1f(U.u_atm, cur.atm);
+    gl.uniform1f(U.u_ring, cur.ring);
+    gl.uniform1f(U.u_seed, cur.seed);
+    gl.uniform1f(U.u_lava, cur.lava);
+    gl.uniform1f(U.u_ice, cur.ice);
+    gl.uniform3fv(U.u_c1, cur.c1);
+    gl.uniform3fv(U.u_c2, cur.c2);
+    gl.uniform3fv(U.u_c3, cur.c3);
+    gl.uniform3fv(U.u_atmc, cur.atmc);
+    gl.uniform3fv(U.u_cloudc, cur.cloudc);
+    gl.uniform3fv(U.u_light, cur.light);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  requestAnimationFrame(loop);
+}
+fitCanvas();
+requestAnimationFrame(loop);
+
+function setVisual(v, d, pl){
+  const lo = pl.look, gas = lo.gas ? 1 : 0, oc = v.W / 100;
+  tgt.gas = gas;
+  tgt.ring = lo.ring || 0;
+  tgt.seed = lo.seed;
+  tgt.ocean = gas ? 0 : oc;
+  tgt.cloud = lo.cloud;
+  tgt.atm = lo.atm;
+  tgt.ice = gas ? 0 : clamp((298 - d.Tk) / 110, 0, 1) * (0.25 + 0.75 * oc);
+  tgt.lava = gas ? 0 : clamp((d.Tk - 500) / 700, 0, 1);
+  ['c1','c2','c3','atmc'].forEach(n => { tgt[n] = lo[n].slice(); });
+  tgt.cloudc = (lo.cloudc || [1,1,1]).slice();
+  tgt.light = STAR[d.cls].tint.slice();
+}
+
+/* ---------- main update ---------- */
+const stage = $('#stage'), result = $('#result');
+let lastKey = null;
+
+function swapAnim(){
+  if (reduce) return;
+  glc.classList.remove('swap');
+  void glc.offsetWidth;
+  glc.classList.add('swap');
+}
+
+function readInputs(){
+  const v = {};
+  let ok = true;
+  PARAMS.forEach(p => {
+    const e = els[p.k];
+    const x = parseNum(e.input.value);
+    if (!isFinite(x) || x < p.min || x > p.max){
+      ok = false;
+      e.row.classList.add('bad');
+      e.pm.textContent = 'допустимо: от ' + nf(p.min) + ' до ' + nf(p.max);
+      e.ps.textContent = '';
+    } else {
+      e.row.classList.remove('bad');
+      v[p.k] = x;
+    }
+  });
+  return ok ? v : null;
+}
+
+function update(){
+  const v = readInputs();
+  if (v) run(v);
+}
+
+function fill(pl){
+  PARAMS.forEach(p => { els[p.k].input.value = numToStr(pl[p.k]); });
+  update();
+}
+
+function run(v){
+  const d = derive(v);
+  const S = scoreAll(v, d);
+  const idx = S.idx;
+  const phys = physCheck(v, d);
+  const m = findMatch(v, d);
+  const exists = phys.ok && m.ok;
+
+  PARAMS.forEach(p => {
+    const e = els[p.k], s = S.sc[p.k];
+    e.bar.style.width = Math.round(s * 100) + '%';
+    e.bar.style.background = 'hsl(' + Math.round(s * 125) + ' 90% 58%)';
+    e.ps.textContent = Math.round(s * 100) + '%';
+    e.pm.textContent = p.meta(v, d);
+  });
+
+  const key = exists ? m.pl.id : 'void';
+  if (key !== lastKey){ lastKey = key; swapAnim(); }
+  mode = exists ? 0 : 1;
+  if (exists) setVisual(v, d, m.pl);
+  stage.classList.toggle('void', !exists);
+  result.classList.toggle('void', !exists);
+  setActiveChip(exists ? m.pl.id : null);
+  if (!glOK) drawFallback();
+
+  $('#sname').textContent = exists ? m.pl.name : 'Объект не найден';
+  $('#ssub').textContent = exists ? m.pl.sub : 'На месте планеты — пустота';
+  stage.setAttribute('aria-label', exists ? 'Визуализация: ' + m.pl.name : 'Такой планеты не существует: чёрная дыра');
+  $('#blurb').textContent = exists ? m.pl.blurb : '';
+
+  const t = tierOf(idx);
+  const pct = Math.round(idx * 100);
+  setGauge(pct);
+  result.style.setProperty('--tier', exists ? t.c : '#b18cff');
+  $('#glab').textContent = exists ? 'индекс пригодности, %' : 'гипотетический индекс, %';
+
+  const mb = $('#matchbox');
+  if (exists){
+    $('#verdict').textContent = t.t;
+    $('#vsub').textContent = t.s;
+    const matchPct = Math.round(100 - 50 * Math.min(m.avg, 1));
+    const same = PARAMS.every(p => Math.abs(v[p.k] - m.pl[p.k]) < 1e-9 * Math.max(1, Math.abs(m.pl[p.k])));
+    mb.innerHTML = '<b>Такая планета есть: ' + m.pl.name + '.</b> ' + (same ? 'Значения взяты из каталога.' : 'Совпадение с каталогом ' + matchPct + '%, расчёт идёт по вашим числам.');
+  } else {
+    $('#verdict').textContent = 'Такой планеты не существует';
+    $('#vsub').textContent = 'Если бы она была, вывод был бы такой: ' + t.t.toLowerCase() + '.';
+    if (!phys.ok){
+      mb.innerHTML = '<b>Физика запрещает такую планету.</b> ' + phys.why;
+    } else {
+      mb.innerHTML = '<b>Среди ' + PLANETS.length + ' планет каталога такой нет.</b> Ближайшая по параметрам — ' + m.pl.name + ', но не совпадают: ' + m.bad.join(', ') + '.';
+    }
+  }
+
+  const items = [
+    ['Гравитация', nf(d.g) + ' g⊕'],
+    ['Плотность', nf(d.rho, 1) + ' г/см³'],
+    ['Скорость убегания', nf(d.vesc, 1) + ' км/с'],
+    ['Поток от звезды', nf(d.S) + ' S⊕'],
+    ['Тип звезды', d.cls],
+    ['Равновесная T', nf(d.Teq - 273.15, 0) + ' °C'],
+    ['Жидкая вода', d.liquid ? 'возможна' : 'нет']
+  ];
+  $('#derived').innerHTML = items.map(x => '<div><dt>' + x[0] + '</dt><dd>' + x[1] + '</dd></div>').join('') +
+    '<div style="grid-column:1/-1"><dt>Звезда</dt><dd style="font-weight:500;font-size:14px">' + STAR[d.cls].t + '</dd></div>';
+
+  const ws = buildWarnings(v, d);
+  let html = ws.map(x => '<li>' + x + '</li>').join('');
+  if (exists && m.pl.grp === 'exo'){
+    html += '<li class="note">Температура, давление, вода и магнитное поле у экзопланет — модельные оценки, а не измерения. Индекс показывает потенциал, а не факт.</li>';
+  }
+  $('#warns').innerHTML = html;
+}
+
+/* ---------- events ---------- */
+let tm = null;
+PARAMS.forEach(p => {
+  const inp = els[p.k].input;
+  inp.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(update, 450); });
+  inp.addEventListener('change', () => { clearTimeout(tm); update(); });
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter'){ clearTimeout(tm); update(); } });
+});
+$('#calc').addEventListener('click', () => { clearTimeout(tm); update(); });
+$('#reset').addEventListener('click', () => fill(EARTH));
+
+fill(EARTH);
+
+/* ---------- starfield ---------- */
+(function(){
+  const c = $('#stars'), ctx = c.getContext('2d');
+  let W = 0, H = 0, dpr = 1, S = [], sh = [], nextShoot = 3000;
+  function init(){
+    const w = window.innerWidth, h = window.innerHeight;
+    if (S.length && Math.abs(w - W) < 2 && Math.abs(h - H) < 160) return;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = w; H = h;
+    c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
+    const n = Math.round(W * H / 2600);
+    S = [];
+    for (let i = 0; i < n; i++){
+      const q = Math.random();
+      S.push({x: Math.random() * W, y: Math.random() * H, z: Math.random() * 0.9 + 0.1, r: Math.random() * 1.3 + 0.2,
+              p: Math.random() * 6.28, s: Math.random() * 1.5 + 0.4, col: q < 0.12 ? '#9fd8ff' : q < 0.22 ? '#ffd9b0' : '#dfe6ff'});
+    }
+  }
+  function frame(t){
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    const sy = window.scrollY || 0;
+    for (let i = 0; i < S.length; i++){
+      const s = S[i];
+      const tw = reduce ? 0.8 : 0.55 + 0.45 * Math.sin(t / 1000 * s.s + s.p);
+      let y = (s.y - sy * 0.06 * s.z) % H;
+      if (y < 0) y += H;
+      ctx.globalAlpha = tw * (0.35 + 0.65 * s.z);
+      ctx.fillStyle = s.col;
+      ctx.beginPath();
+      ctx.arc(s.x, y, s.r * s.z + 0.2, 0, 6.283);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    if (!reduce){
+      if (t > nextShoot){
+        nextShoot = t + 6000 + Math.random() * 9000;
+        const a = 0.5 + Math.random() * 0.4;
+        sh.push({x: Math.random() * W * 0.9, y: Math.random() * H * 0.4, vx: Math.cos(a) * 9, vy: Math.sin(a) * 9, life: 1});
+      }
+      for (let i = sh.length - 1; i >= 0; i--){
+        const m = sh[i];
+        m.x += m.vx; m.y += m.vy; m.life -= 0.02;
+        if (m.life <= 0){ sh.splice(i, 1); continue; }
+        const g = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * 9, m.y - m.vy * 9);
+        g.addColorStop(0, 'rgba(255,255,255,' + m.life + ')');
+        g.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.strokeStyle = g; ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(m.x - m.vx * 9, m.y - m.vy * 9); ctx.stroke();
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  init();
+  window.addEventListener('resize', init);
+  requestAnimationFrame(frame);
+})();
+
+})();
+</script>
+</body>
+</html>
